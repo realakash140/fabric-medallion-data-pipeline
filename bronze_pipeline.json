@@ -1,1 +1,118 @@
-
+{
+    "name": "RawDataIngestion",
+    "objectId": "29921a0a-4f5a-4daf-849d-a11446cf792c",
+    "properties": {
+        "activities": [
+            {
+                "name": "ForAllTheFiles",
+                "type": "ForEach",
+                "dependsOn": [],
+                "typeProperties": {
+                    "items": {
+                        "value": "@pipeline().parameters.file_names",
+                        "type": "Expression"
+                    },
+                    "activities": [
+                        {
+                            "name": "GitHubData",
+                            "type": "Copy",
+                            "dependsOn": [],
+                            "policy": {
+                                "timeout": "0.12:00:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "typeProperties": {
+                                "source": {
+                                    "type": "DelimitedTextSource",
+                                    "storeSettings": {
+                                        "type": "HttpReadSettings",
+                                        "requestMethod": "GET"
+                                    },
+                                    "formatSettings": {
+                                        "type": "DelimitedTextReadSettings"
+                                    },
+                                    "datasetSettings": {
+                                        "annotations": [],
+                                        "type": "DelimitedText",
+                                        "typeProperties": {
+                                            "location": {
+                                                "type": "HttpServerLocation",
+                                                "relativeUrl": {
+                                                    "value": "anshlambagit/FabricDataEngineering/refs/heads/main/RawData/@{item()}.csv",
+                                                    "type": "Expression"
+                                                }
+                                            },
+                                            "columnDelimiter": ",",
+                                            "escapeChar": "\\",
+                                            "firstRowAsHeader": true,
+                                            "quoteChar": "\""
+                                        },
+                                        "schema": [],
+                                        "externalReferences": {
+                                            "connection": "69e5b77b-6dbf-4299-9a54-5dcb97eea982"
+                                        }
+                                    }
+                                },
+                                "sink": {
+                                    "type": "LakehouseTableSink",
+                                    "tableActionOption": "OverwriteSchema",
+                                    "partitionOption": "None",
+                                    "applyVOrder": false,
+                                    "datasetSettings": {
+                                        "annotations": [],
+                                        "linkedService": {
+                                            "name": "BronzeLH",
+                                            "properties": {
+                                                "annotations": [],
+                                                "type": "Lakehouse",
+                                                "typeProperties": {
+                                                    "workspaceId": "c87c435c-21a9-4e77-811c-4d770fca8cbb",
+                                                    "artifactId": "5c8409c5-1c68-4674-a389-b10ecb704618",
+                                                    "rootFolder": "Tables"
+                                                }
+                                            }
+                                        },
+                                        "type": "LakehouseTable",
+                                        "schema": [],
+                                        "typeProperties": {
+                                            "schema": "",
+                                            "table": {
+                                                "value": "@item()",
+                                                "type": "Expression"
+                                            }
+                                        }
+                                    }
+                                },
+                                "enableStaging": false,
+                                "translator": {
+                                    "type": "TabularTranslator",
+                                    "typeConversion": true,
+                                    "typeConversionSettings": {
+                                        "allowDataTruncation": true,
+                                        "treatBooleanAsNumber": false
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "parameters": {
+            "file_names": {
+                "type": "array",
+                "defaultValue": [
+                    "Trans_dim",
+                    "customer_dim",
+                    "fact_table",
+                    "store_dim"
+                ]
+            }
+        },
+        "lastModifiedByObjectId": "b0e8f828-e098-4c5d-9745-be1d228fbbf1",
+        "lastPublishTime": "2026-04-24T21:50:18Z"
+    }
+}
